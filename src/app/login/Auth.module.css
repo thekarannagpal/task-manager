@@ -1,0 +1,63 @@
+.authContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 150px);
+}
+
+.authCard {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.authCard h1 {
+  margin-bottom: 0.5rem;
+}
+
+.authCard p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: left;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.switchMode {
+  margin-top: 2rem;
+  font-size: 0.875rem;
+}
+
+.switchMode a {
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.switchMode a:hover {
+  text-decoration: underline;
+}
