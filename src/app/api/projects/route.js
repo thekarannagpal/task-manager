@@ -47,7 +47,7 @@ export async function POST(req) {
       name,
       description,
       ownerId: session.user.id,
-      members: members || [],
+      members: members || []
     });
 
     await newProject.save();

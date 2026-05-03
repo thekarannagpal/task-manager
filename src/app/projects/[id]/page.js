@@ -36,10 +36,8 @@ export default function ProjectDetails() {
       setProject(currentProj);
       setTasks(tasksData.filter(t => t.projectId?._id === id));
 
-      if (currentProj && usersData.length > 0) {
-         const projectMemberIds = currentProj.members.map(m => m._id);
-         const allowedUsers = usersData.filter(u => projectMemberIds.includes(u._id) || u._id === currentProj.ownerId?._id);
-         setAllUsers(allowedUsers);
+      if (usersData.length > 0) {
+         setAllUsers(usersData);
       }
     } catch (err) {
       console.error(err);
