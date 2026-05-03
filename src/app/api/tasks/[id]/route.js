@@ -4,13 +4,14 @@ import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/mongodb";
 import Task from "@/models/Task";
 
-export async function PUT(req, { params }) {
+export async function PUT(req, context) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const params = await context.params;
     const { id } = params;
     const { status, assigneeId, title, description, dueDate } = await req.json();
 
@@ -35,13 +36,14 @@ export async function PUT(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
     try {
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
         
+        const params = await context.params;
         const { id } = params;
         await connectToDatabase();
         

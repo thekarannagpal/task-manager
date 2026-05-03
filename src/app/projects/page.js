@@ -7,16 +7,27 @@ import Link from "next/link";
 export default function Projects() {
   const { data: session } = useSession();
   const [projects, setProjects] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedMembers, setSelectedMembers] = useState([]);
 
-  const fetchProjects = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch("/api/projects");
-      const data = await res.json();
-      setProjects(data);
+      const [projectsRes, usersRes] = await Promise.all([
+        fetch("/api/projects"),
+        fetch("/api/users")
+      ]);
+      const projData = await projectsRes.json();
+      setProjects(projData);
+
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        setAllUsers(usersData);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -25,7 +36,7 @@ export default function Projects() {
   };
 
   useEffect(() => {
-    fetchProjects();
+    fetchData();
   }, []);
 
   const handleCreateProject = async (e) => {
@@ -34,16 +45,25 @@ export default function Projects() {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, description }),
+        body: JSON.stringify({ name, description, members: selectedMembers }),
       });
       if (res.ok) {
         setShowModal(false);
         setName("");
         setDescription("");
-        fetchProjects();
+        setSelectedMembers([]);
+        fetchData();
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleMemberToggle = (userId) => {
+    if (selectedMembers.includes(userId)) {
+      setSelectedMembers(selectedMembers.filter(id => id !== userId));
+    } else {
+      setSelectedMembers([...selectedMembers, userId]);
     }
   };
 
@@ -77,7 +97,7 @@ export default function Projects() {
 
       {showModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 100 }}>
-          <div className="glass-card" style={{ width: "100%", maxWidth: "500px", background: "var(--bg-secondary)" }}>
+          <div className="glass-card" style={{ width: "100%", maxWidth: "500px", background: "var(--bg-secondary)", maxHeight: "90vh", overflowY: "auto" }}>
             <h2 style={{ marginBottom: "1.5rem" }}>Create New Project</h2>
             <form onSubmit={handleCreateProject} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -88,6 +108,24 @@ export default function Projects() {
                 <label>Description</label>
                 <textarea rows="3" value={description} onChange={(e) => setDescription(e.target.value)}></textarea>
               </div>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <label>Assign Members</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", background: "var(--bg-color)", padding: "1rem", borderRadius: "8px", maxHeight: "150px", overflowY: "auto" }}>
+                  {allUsers.filter(u => u._id !== session?.user?.id).map(user => (
+                    <label key={user._id} style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
+                      <input 
+                        type="checkbox" 
+                        checked={selectedMembers.includes(user._id)}
+                        onChange={() => handleMemberToggle(user._id)}
+                      />
+                      <span>{user.name} <small className="text-secondary">({user.email})</small></span>
+                    </label>
+                  ))}
+                  {allUsers.length <= 1 && <span className="text-secondary">No other users found to invite.</span>}
+                </div>
+              </div>
+
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1rem" }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">Create</button>
